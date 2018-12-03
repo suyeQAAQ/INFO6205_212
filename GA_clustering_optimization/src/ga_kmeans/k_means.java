@@ -1,10 +1,7 @@
 package ga_kmeans;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 public class k_means {
 	private static int K=10;//The number of clusters
@@ -13,7 +10,6 @@ public class k_means {
 	private static ArrayList<Point> allPoints = new ArrayList<>();//the points we want to cluster
 	private static ArrayList<ArrayList<Point>> allIndexes = new ArrayList<ArrayList<Point>>();
 	private static int maxtimes = 100;//the number of iteration
-	private double breakCondition;
 	
 	public static double getDistance(Point p,Point q){
 		return Math.sqrt(Math.abs(Math.pow(p.getX()-q.getX(), 2)+Math.pow(p.getY()-q.getY(), 2)));
@@ -92,7 +88,6 @@ public class k_means {
 	}
 	
 	public static void recursionTillBreak(){
-		double moveDis = 10;
 		double[] storeDis = new double[2];
 		ArrayList<Point> newCentres = new ArrayList<Point>();
 		storeDis[0] = calculateCluster(originCentres);
