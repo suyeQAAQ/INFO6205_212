@@ -11,8 +11,8 @@ public class k_means {
 	private static int bound=50;
 	private static ArrayList<Point> originCentres = new ArrayList<>();//the origin center of all points
 	private static ArrayList<Point> allPoints = new ArrayList<>();//the points we want to cluster
-	private static List<ArrayList<Point>> allIndexes = new ArrayList<ArrayList<Point>>();
-	private static int maxtimes = 1000;//the number of iteration
+	private static ArrayList<ArrayList<Point>> allIndexes = new ArrayList<ArrayList<Point>>();
+	private static int maxtimes = 100;//the number of iteration
 	private double breakCondition;
 	
 	public static double getDistance(Point p,Point q){
@@ -52,12 +52,12 @@ public class k_means {
 		}
 	}
 	
-	public static void calculateCluster(){
+	public static double calculateCluster(ArrayList<Point> centres){
 		double sumDis = 0;
 		for(int l=0;l<allPoints.size();l++){
 			double[] diss = new double[K];
-			for(int i=0;i<originCentres.size();i++){
-				double dis = getDistance(allPoints.get(l),originCentres.get(i));
+			for(int i=0;i<centres.size();i++){
+				double dis = getDistance(allPoints.get(l),centres.get(i));
 				diss[i]=dis;
 			}
 			//find the closest cluster and it's index
@@ -74,28 +74,46 @@ public class k_means {
 			sumDis += mindis;
 		}
 		System.out.println("The origin sum of all dis is: "+ sumDis);
+		return sumDis;
 	}
 	
-	public static void findNewCenter(){
-		for(int i=0;i<allIndexes.size();i++){
+	public static ArrayList<Point> findNewCenter(ArrayList<ArrayList<Point>> allIndexe,ArrayList<Point> Centres){
+		for(int i=0;i<allIndexe.size();i++){
 			int xSum = 0,ySum = 0;
-			for(int j=0;j<allIndexes.get(i).size();j++){
-				xSum+=allIndexes.get(i).get(j).getX();
-				ySum+=allIndexes.get(i).get(j).getY();
+			for(int j=0;j<allIndexe.get(i).size();j++){
+				xSum+=allIndexe.get(i).get(j).getX();
+				ySum+=allIndexe.get(i).get(j).getY();
 			}
-			originCentres.get(i).setX(xSum/allIndexes.get(i).size());
-			originCentres.get(i).setY(ySum/allIndexes.get(i).size());
+			Centres.get(i).setX(xSum/allIndexe.get(i).size());
+			Centres.get(i).setY(ySum/allIndexe.get(i).size());
 		}
-		System.out.println("Now the centers are: "+originCentres);
+		System.out.println("Now the centers are: "+Centres);
+		return Centres;
+	}
+	
+	public static void recursionTillBreak(){
+		double moveDis = 10;
+		double[] storeDis = new double[2];
+		ArrayList<Point> newCentres = new ArrayList<Point>();
+		storeDis[0] = calculateCluster(originCentres);
+		for(int i=0;i<maxtimes;i++){
+			newCentres = findNewCenter(allIndexes,originCentres);
+			double newDis = calculateCluster(newCentres);
+			storeDis[1] = storeDis[0];
+			storeDis[0] = newDis;
+			if(storeDis[0]==storeDis[1]){
+				break;
+			}
+		}
+		System.out.println(newCentres);
+		System.out.println(allIndexes);
 	}
 	
 	public static void main(String[] args){
 		generatePoints();
 		//get the origin center randomly;
 		generateOriginCentre(allPoints);
-		//calculate which cluster it should be in
-		calculateCluster();
-		//find the new Centres
-		findNewCenter();
+		//recursion till it break
+		recursionTillBreak();
 	}
 }
