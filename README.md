@@ -17,5 +17,5 @@ The various methods of steps 2 and 3 are hierarchical call relationships, and th
 Recursive call: selection(), cross(), and mutation() are the above 2, 3, and 4 steps. When the individuals of the obtained group are infinitely tight or identical, the genetic end point is reached. The individual is the relative superior solution given by this algorithm.
 
 Focuses on:
-1. We have decoded and encoded the tails of the selection(), cross(), and mution() methods, that is, calling the decode() and encode() methods, and constantly updating the static properties popList and chromos, meaning that each The idea of ​​retaining better genes in one iteration is our improvement on the genetic algorithm for clustering problems.
-2. The idea of ​​calling the decode() and encode() methods multiple times is that each group corresponds to a gene pool, and when we optimize the gene pool, we decode and encode it to update the gene pool and population.
+1. We put decoded and encoded in the tails of the selection(), cross(), and mutation() methods, that is, calling the decode() and encode() methods, and constantly updating the static properties popList and chromos, to retain better genes in one iteration which is our improvement on the genetic algorithm for clustering problems.
+2. The idea of calling the decode() and encode() methods multiple times is that each group corresponds to a gene pool, and when we optimize the gene pool, we decode and encode it to update the gene pool and population.
