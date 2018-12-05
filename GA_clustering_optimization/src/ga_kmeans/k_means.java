@@ -4,60 +4,58 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class k_means {
-	private static int K=10;//The number of clusters
-	private static int bound=50;
-	private static ArrayList<Point> originCentres = new ArrayList<>();//the origin center of all points
-	private static ArrayList<Point> allPoints = new ArrayList<>();//the points we want to cluster
-	private static ArrayList<ArrayList<Point>> allIndexes = new ArrayList<ArrayList<Point>>();
-	private static int maxtimes = 100;//the number of iteration
+	private int K=10;//The number of clusters
 	
 	public static double getDistance(Point p,Point q){
 		return Math.sqrt(Math.abs(Math.pow(p.getX()-q.getX(), 2)+Math.pow(p.getY()-q.getY(), 2)));
 	}
 	
-	public static void generatePoints(){
+	public ArrayList<Point> generatePoints(int bound){
 		//generate 100 points from 0 to 500
+		ArrayList<Point> allPoint = new ArrayList<>();
 		for(int i=0;i<100;i++){
 			Random rx = new Random();
 			int x = rx.nextInt(bound);
 			Random ry = new Random();
 			int y = ry.nextInt(bound);
 			Point p = new Point(x,y);
-			allPoints.add(p);
+			allPoint.add(p);
 		}
-		System.out.print(allPoints);
+		System.out.print(allPoint);
 		System.out.println();
+		return allPoint;
 	}
 	
-	public static void generateOriginCentre(ArrayList<Point> allpoints){
+	public ArrayList<Point> generateOriginCentre(ArrayList<Point> allpoints){
+		ArrayList<Point> originCenters = new ArrayList<Point>();
 		for(int i=0;i<K;i++){
 			int index = 3*i+1;
 			if(index<50){
-				originCentres.add(allpoints.get(index));
+				originCenters.add(allpoints.get(index));
 			}else{
 				index = index-2;
-				originCentres.add(allpoints.get(index));
+				originCenters.add(allpoints.get(index));
 			}
 		}
-		System.out.println(originCentres);
-		//initiate the allIndexes:
-		for(int k=0;k<originCentres.size();k++){
-			ArrayList<Point> p = new ArrayList<Point>();
-			p.add(originCentres.get(k));
-			allIndexes.add(p);
-		}
+		System.out.println(originCenters);
+		return originCenters;
 	}
 	
-	public static double calculateCluster(ArrayList<Point> centres){
+	public ArrayList<ArrayList<Point>> calculateCluster(ArrayList<Point> centres, ArrayList<Point> allpoints){
+		ArrayList<ArrayList<Point>> allIndexes = new ArrayList<ArrayList<Point>>();
+		for(int s = 0;s<10;s++){
+			ArrayList<Point> p = new ArrayList<>();
+			allIndexes.add(p);
+		}
 		double sumDis = 0;
-		for(int l=0;l<allPoints.size();l++){
+		for(int l=0;l<allpoints.size();l++){
 			double[] diss = new double[K];
 			for(int i=0;i<centres.size();i++){
-				double dis = getDistance(allPoints.get(l),centres.get(i));
+				double dis = getDistance(allpoints.get(l),centres.get(i));
 				diss[i]=dis;
 			}
 			//find the closest cluster and it's index
-			double mindis = bound;
+			double mindis = 50;
 			int index = -1;
 			for(int j=0;j<diss.length;j++){
 				if(diss[j]<mindis){
@@ -65,15 +63,15 @@ public class k_means {
 					index = j;
 				}
 			}
-			allIndexes.get(index).remove(0);
-			allIndexes.get(index).add(allPoints.get(l));
+			allIndexes.get(index).add(allpoints.get(l));
 			sumDis += mindis;
 		}
-		System.out.println("The origin sum of all dis is: "+ sumDis);
-		return sumDis;
+		System.out.println(allIndexes);
+		System.out.println("The sum of all dis is: "+ sumDis);
+		return allIndexes;
 	}
 	
-	public static ArrayList<Point> findNewCenter(ArrayList<ArrayList<Point>> allIndexe,ArrayList<Point> Centres){
+	public ArrayList<Point> findNewCenter(ArrayList<ArrayList<Point>> allIndexe,ArrayList<Point> Centres){
 		for(int i=0;i<allIndexe.size();i++){
 			int xSum = 0,ySum = 0;
 			for(int j=0;j<allIndexe.get(i).size();j++){
@@ -87,28 +85,34 @@ public class k_means {
 		return Centres;
 	}
 	
-	public static void recursionTillBreak(){
-		double[] storeDis = new double[2];
-		ArrayList<Point> newCentres = new ArrayList<Point>();
-		storeDis[0] = calculateCluster(originCentres);
-		for(int i=0;i<maxtimes;i++){
-			newCentres = findNewCenter(allIndexes,originCentres);
-			double newDis = calculateCluster(newCentres);
-			storeDis[1] = storeDis[0];
-			storeDis[0] = newDis;
-			if(storeDis[0]==storeDis[1]){
+	public ArrayList<Point> recursionTillBreak(){
+		k_means k = new k_means();
+		ArrayList<Point> allPoint = k.generatePoints(50);
+		ArrayList<Point> originCenter = k.generateOriginCentre(allPoint);
+		//first iteration:
+		ArrayList<ArrayList<Point>> allIndexes = calculateCluster(originCenter,allPoint);
+		ArrayList<Point> newCentres = findNewCenter(allIndexes,originCenter);
+		//end of first iteration
+		int i;
+		ArrayList<Point> temp = new ArrayList<>();
+		ArrayList<Point> newtemp = new ArrayList<>();
+		for(i=0;i<100;i++){
+			allIndexes = calculateCluster(newCentres,allPoint);
+			newCentres = findNewCenter(allIndexes,newCentres);
+			newtemp = temp;
+			temp = newCentres;
+			if(temp.equals(newtemp)){
 				break;
 			}
 		}
+		System.out.println("End at No."+(i+2));
 		System.out.println(newCentres);
 		System.out.println(allIndexes);
+		return newCentres;
 	}
 	
 	public static void main(String[] args){
-		generatePoints();
-		//get the origin center randomly;
-		generateOriginCentre(allPoints);
-		//recursion till it break
-		recursionTillBreak();
+		k_means k = new k_means();
+		k.recursionTillBreak();
 	}
 }
